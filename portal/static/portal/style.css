@@ -1,0 +1,82 @@
+:root {
+  --brand: #1f3a8a;
+  --brand-soft: #eef2ff;
+}
+
+body {
+  background: #f6f7fb;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.navbar.bg-brand {
+  background: var(--brand);
+}
+
+.card {
+  border: 0;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--brand), #3b5bdb);
+  color: #fff;
+  border-radius: 1rem;
+}
+
+.timeline {
+  list-style: none;
+  padding-left: 0;
+  border-left: 2px solid #dee2e6;
+  margin-left: 0.5rem;
+}
+
+.timeline li {
+  position: relative;
+  padding: 0 0 1.25rem 1.5rem;
+}
+
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--brand);
+  border: 2px solid #fff;
+}
+
+.eligibility-notice {
+  border-left: 4px solid #dc3545;
+}
+
+.table > :not(caption) > * > * {
+  vertical-align: middle;
+}
+
+footer {
+  font-size: 0.85rem;
+}
+
+/* Wide tables scroll sideways on phones instead of breaking the layout. */
+.card-body.p-0 {
+  overflow-x: auto;
+}

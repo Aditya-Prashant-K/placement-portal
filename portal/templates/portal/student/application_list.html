@@ -1,0 +1,49 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}My applications{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">My applications</h3>
+  <span class="small text-muted" id="live-indicator">Live &middot; updates every 10s</span>
+</div>
+<div class="card"><div class="card-body p-0">
+  <table class="table mb-0">
+    <thead class="table-light"><tr><th>Position</th><th>Company</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for app in applications %}
+        <tr>
+          <td>{{ app.job.title }}</td>
+          <td>{{ app.job.company.name }}</td>
+          <td>{{ app.applied_at|date:"d M Y" }}</td>
+          <td><span class="badge bg-{{ app.status|badge }}" data-app-id="{{ app.pk }}">{{ app.get_status_display }}</span></td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'portal:application_detail' app.pk %}">Timeline</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="text-muted p-4">No applications yet. <a href="{% url 'portal:job_list' %}">Browse jobs</a>.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Poll the JSON endpoint so status changes made by recruiters appear without a refresh.
+  const BADGES = {APPLIED:"secondary", UNDER_REVIEW:"info text-dark", SHORTLISTED:"primary",
+                  INTERVIEW:"warning text-dark", OFFERED:"success", REJECTED:"danger"};
+  async function refresh() {
+    try {
+      const res = await fetch("{% url 'portal:application_status_json' %}");
+      if (!res.ok) return;
+      const data = await res.json();
+      document.querySelectorAll("[data-app-id]").forEach(function (el) {
+        const item = data[el.dataset.appId];
+        if (item && el.textContent.trim() !== item.label) {
+          el.textContent = item.label;
+          el.className = "badge bg-" + (BADGES[item.status] || "secondary");
+        }
+      });
+    } catch (e) { /* offline: try again next tick */ }
+  }
+  setInterval(refresh, 10000);
+</script>
+{% endblock %}

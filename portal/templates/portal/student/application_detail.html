@@ -1,0 +1,53 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}Application{% endblock %}
+{% block content %}
+<a class="small" href="{% url 'portal:application_list' %}">&larr; My applications</a>
+<div class="row g-3 mt-1">
+  <div class="col-md-7">
+    <div class="card"><div class="card-body p-4">
+      <h4 class="mb-0">{{ application.job.title }}</h4>
+      <div class="text-muted mb-3">{{ application.job.company.name }}</div>
+      <p>Current status:
+        <span class="badge bg-{{ application.status|badge }} fs-6" data-app-id="{{ application.pk }}">{{ application.get_status_display }}</span>
+      </p>
+      <h6 class="mt-4">Pipeline</h6>
+      <div class="d-flex flex-wrap gap-2 small">
+        <span class="badge bg-light text-dark border">Applied</span> &rarr;
+        <span class="badge bg-light text-dark border">Under review</span> &rarr;
+        <span class="badge bg-light text-dark border">Shortlisted</span> &rarr;
+        <span class="badge bg-light text-dark border">Interview</span> &rarr;
+        <span class="badge bg-light text-dark border">Offered</span>
+      </div>
+      <p class="small text-muted mt-2 mb-0">A recruiter can mark an application Rejected at any stage before an offer.</p>
+    </div></div>
+  </div>
+  <div class="col-md-5">
+    <div class="card"><div class="card-body">
+      <h6 class="mb-3">History</h6>
+      <ul class="timeline">
+        {% for e in events %}
+          <li>
+            <span class="badge bg-{{ e.status|badge }}">{{ e.get_status_display }}</span>
+            <div class="small text-muted">{{ e.created_at|date:"d M Y, H:i" }}{% if e.note %} &middot; {{ e.note }}{% endif %}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Reload when the status changes so the history timeline stays current.
+  const current = "{{ application.status }}";
+  setInterval(async function () {
+    try {
+      const res = await fetch("{% url 'portal:application_status_json' %}");
+      const data = await res.json();
+      const item = data["{{ application.pk }}"];
+      if (item && item.status !== current) location.reload();
+    } catch (e) {}
+  }, 10000);
+</script>
+{% endblock %}

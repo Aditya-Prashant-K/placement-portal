@@ -1,0 +1,22 @@
+{% load portal_extras %}
+<div class="table-responsive">
+<table class="table table-sm mb-0">
+  <thead class="table-light">
+    <tr><th>Timestamp</th><th class="text-nowrap">Reviewer ID</th><th>Reviewer</th><th>Action</th><th>Target</th><th>Note</th></tr>
+  </thead>
+  <tbody>
+  {% for log in logs %}
+    <tr>
+      <td class="text-nowrap small">{{ log.created_at|date:"d M Y, H:i:s" }}</td>
+      <td><code>#{{ log.admin_id }}</code></td>
+      <td>{{ log.admin.username }}</td>
+      <td><span class="badge bg-{{ log.action|badge }}">{{ log.get_action_display }}</span></td>
+      <td>{{ log.get_target_type_display }} <code>#{{ log.target_id }}</code><div class="small text-muted">{{ log.target_label }}</div></td>
+      <td class="small">{{ log.note|default:"—" }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6" class="text-muted p-3">No decisions recorded yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>

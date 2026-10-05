@@ -1,0 +1,96 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}Applicants &middot; {{ job.title }}{% endblock %}
+{% block content %}
+<a class="small" href="{% url 'portal:recruiter_dashboard' %}">&larr; Dashboard</a>
+<div class="d-flex justify-content-between align-items-end mt-1 mb-3">
+  <div>
+    <h3 class="mb-0">{{ job.title }}</h3>
+    <div class="text-muted small">CGPA &ge; {{ job.min_cgpa }} &middot; {{ job.allowed_branches_display }} &middot;
+      <span class="badge bg-{{ job.status|badge }}">{{ job.get_status_display }}</span></div>
+  </div>
+  <form method="get" class="d-flex gap-2">
+    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {% if value == status_filter %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+{% if applications %}
+<form method="post" action="{% url 'portal:application_batch' job.pk %}" id="batch-form">
+  {% csrf_token %}
+  <div class="card mb-2"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
+    <strong class="small me-2">Batch update:</strong>
+    <span class="small text-muted" id="selected-count">0 selected</span>
+    <select name="status" class="form-select form-select-sm w-auto" required>
+      <option value="">Move selected to&hellip;</option>
+      {% for value, label in statuses %}{% if value != "APPLIED" %}
+        <option value="{{ value }}">{{ label }}</option>
+      {% endif %}{% endfor %}
+    </select>
+    <button class="btn btn-sm btn-primary" type="submit">Apply to selected</button>
+    <span class="small text-muted">Invalid moves (e.g. Offered &rarr; Interview) are skipped and reported.</span>
+  </div></div>
+</form>
+{% endif %}
+
+<div class="card"><div class="card-body p-0">
+  <table class="table mb-0">
+    <thead class="table-light">
+      <tr>
+        <th style="width:2rem"><input class="form-check-input" type="checkbox" id="select-all" title="Select all"></th>
+        <th>Candidate</th><th>Branch</th><th>CGPA</th><th>Applied</th><th>Status</th><th>Move to</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for app in applications %}
+      <tr>
+        <td><input class="form-check-input row-check" type="checkbox" name="application_ids" value="{{ app.pk }}" form="batch-form"></td>
+        <td>
+          <a href="{% url 'portal:applicant_detail' app.pk %}">{{ app.student.display_name }}</a>
+          <div class="small text-muted">{{ app.student.email }}</div>
+        </td>
+        <td>{{ app.student.profile.branch }}</td>
+        <td>{{ app.student.profile.cgpa }}</td>
+        <td class="small">{{ app.applied_at|date:"d M Y" }}</td>
+        <td><span class="badge bg-{{ app.status|badge }}">{{ app.get_status_display }}</span></td>
+        <td>
+          {% with nxt=app.allowed_next %}
+          {% if nxt %}
+            <form method="post" action="{% url 'portal:application_status' app.pk %}" class="d-flex gap-1">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <select name="status" class="form-select form-select-sm">
+                {% for value, label in nxt %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+              </select>
+              <button class="btn btn-sm btn-outline-primary" type="submit">Save</button>
+            </form>
+          {% else %}
+            <span class="small text-muted">Final</span>
+          {% endif %}
+          {% endwith %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="7" class="text-muted p-4">No applicants{% if status_filter %} with this status{% endif %} yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const all = document.getElementById("select-all");
+  const boxes = document.querySelectorAll(".row-check");
+  const count = document.getElementById("selected-count");
+  function update() {
+    const n = document.querySelectorAll(".row-check:checked").length;
+    if (count) count.textContent = n + " selected";
+  }
+  if (all) all.addEventListener("change", function () { boxes.forEach(b => b.checked = all.checked); update(); });
+  boxes.forEach(b => b.addEventListener("change", update));
+</script>
+{% endblock %}

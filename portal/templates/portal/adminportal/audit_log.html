@@ -1,0 +1,31 @@
+{% extends "portal/base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-3">
+  <div>
+    <h3 class="mb-0">Audit log</h3>
+    <div class="text-muted small">Every approval and rejection, with reviewer ID and timestamp. Read-only.</div>
+  </div>
+  <form method="get" class="d-flex gap-2">
+    <select name="action" class="form-select form-select-sm">
+      <option value="">All actions</option>
+      {% for v, l in actions %}<option value="{{ v }}" {% if v == action %}selected{% endif %}>{{ l }}</option>{% endfor %}
+    </select>
+    <select name="target" class="form-select form-select-sm">
+      <option value="">All targets</option>
+      {% for v, l in targets %}<option value="{{ v }}" {% if v == target %}selected{% endif %}>{{ l }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-sm btn-primary">Filter</button>
+  </form>
+</div>
+<div class="card"><div class="card-body">
+  {% include "portal/adminportal/_log_table.html" with logs=page.object_list %}
+  {% if page.paginator.num_pages > 1 %}
+    <nav class="mt-3"><ul class="pagination pagination-sm mb-0">
+      {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}&action={{ action }}&target={{ target }}">Previous</a></li>{% endif %}
+      <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+      {% if page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}&action={{ action }}&target={{ target }}">Next</a></li>{% endif %}
+    </ul></nav>
+  {% endif %}
+</div></div>
+{% endblock %}

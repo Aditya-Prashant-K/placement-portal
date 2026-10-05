@@ -1,0 +1,51 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}{{ application.student.display_name }}{% endblock %}
+{% block content %}
+<a class="small" href="{% url 'portal:applicants' application.job.pk %}">&larr; Applicants for {{ application.job.title }}</a>
+<div class="row g-3 mt-1">
+  <div class="col-md-7">
+    <div class="card"><div class="card-body p-4">
+      <h4 class="mb-0">{{ application.student.display_name }}</h4>
+      <div class="text-muted mb-3">{{ application.student.email }}</div>
+      {% with p=application.student.profile %}
+      <dl class="row">
+        <dt class="col-4">Branch</dt><dd class="col-8">{{ p.get_branch_display }}</dd>
+        <dt class="col-4">CGPA</dt><dd class="col-8">{{ p.cgpa }}</dd>
+        <dt class="col-4">Graduation year</dt><dd class="col-8">{{ p.graduation_year }}</dd>
+        <dt class="col-4">Resume</dt><dd class="col-8"><a href="{{ p.resume_link }}" target="_blank" rel="noopener">{{ p.resume_link }}</a></dd>
+      </dl>
+      {% endwith %}
+      <hr>
+      <p class="mb-2">Status: <span class="badge bg-{{ application.status|badge }}">{{ application.get_status_display }}</span></p>
+      {% with nxt=application.allowed_next %}
+      {% if nxt %}
+        <form method="post" action="{% url 'portal:application_status' application.pk %}" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <select name="status" class="form-select w-auto">
+            {% for value, label in nxt %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+          </select>
+          <button class="btn btn-primary" type="submit">Update status</button>
+        </form>
+      {% else %}
+        <p class="small text-muted">This application is in a final state.</p>
+      {% endif %}
+      {% endwith %}
+    </div></div>
+  </div>
+  <div class="col-md-5">
+    <div class="card"><div class="card-body">
+      <h6 class="mb-3">History</h6>
+      <ul class="timeline">
+        {% for e in events %}
+          <li>
+            <span class="badge bg-{{ e.status|badge }}">{{ e.get_status_display }}</span>
+            <div class="small text-muted">{{ e.created_at|date:"d M Y, H:i" }}{% if e.changed_by %} &middot; {{ e.changed_by.display_name }}{% endif %}{% if e.note %} &middot; {{ e.note }}{% endif %}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}Placement cell{% endblock %}
+{% block content %}
+<h3 class="mb-3">Placement cell admin</h3>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><a class="text-decoration-none" href="{% url 'portal:admin_queue' %}"><div class="card"><div class="card-body">
+    <div class="text-muted small">Companies awaiting review</div><div class="stat-number text-warning">{{ pending_companies }}</div>
+  </div></div></a></div>
+  <div class="col-md-4"><a class="text-decoration-none" href="{% url 'portal:admin_queue' %}"><div class="card"><div class="card-body">
+    <div class="text-muted small">Job postings awaiting review</div><div class="stat-number text-warning">{{ pending_jobs }}</div>
+  </div></div></a></div>
+  <div class="col-md-4"><a class="text-decoration-none" href="{% url 'portal:audit_log' %}"><div class="card"><div class="card-body">
+    <div class="text-muted small">Audit log entries</div><div class="stat-number">{{ log_total }}</div>
+  </div></div></a></div>
+</div>
+
+<div class="card"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Recent decisions</h5>
+    <a class="small" href="{% url 'portal:audit_log' %}">Full audit log</a>
+  </div>
+  {% include "portal/adminportal/_log_table.html" with logs=recent_logs %}
+</div></div>
+{% endblock %}

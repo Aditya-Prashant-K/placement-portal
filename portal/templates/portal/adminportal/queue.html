@@ -1,0 +1,46 @@
+{% extends "portal/base.html" %}
+{% block title %}Approval queue{% endblock %}
+{% block content %}
+<h3 class="mb-3">Approval queue</h3>
+
+<h5>Companies <span class="badge bg-warning text-dark">{{ companies|length }}</span></h5>
+<div class="card mb-4"><div class="card-body p-0">
+  <table class="table mb-0">
+    <thead class="table-light"><tr><th>Company</th><th>Industry</th><th>Recruiter</th><th>Submitted</th><th></th></tr></thead>
+    <tbody>
+    {% for c in companies %}
+      <tr>
+        <td>{{ c.name }}</td><td>{{ c.industry|default:"—" }}</td>
+        <td>{{ c.owner.display_name }}<div class="small text-muted">{{ c.owner.email }}</div></td>
+        <td class="small">{{ c.updated_at|date:"d M Y" }}</td>
+        <td class="text-end"><a class="btn btn-sm btn-primary" href="{% url 'portal:review_company' c.pk %}">Review</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="text-muted p-3">No companies waiting.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<h5>Job postings <span class="badge bg-warning text-dark">{{ jobs|length }}</span></h5>
+<div class="card"><div class="card-body p-0">
+  <table class="table mb-0">
+    <thead class="table-light"><tr><th>Posting</th><th>Company</th><th>Criteria</th><th>Submitted</th><th></th></tr></thead>
+    <tbody>
+    {% for j in jobs %}
+      <tr>
+        <td>{{ j.title }}<div class="small text-muted">{{ j.get_job_type_display }}</div></td>
+        <td>{{ j.company.name }}
+          {% if j.company.status != "APPROVED" %}<div class="small text-warning">Company not approved yet</div>{% endif %}
+        </td>
+        <td class="small">CGPA &ge; {{ j.min_cgpa }}<br>{{ j.allowed_branches_display }}</td>
+        <td class="small">{{ j.updated_at|date:"d M Y" }}</td>
+        <td class="text-end"><a class="btn btn-sm btn-primary" href="{% url 'portal:review_job' j.pk %}">Review</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="text-muted p-3">No postings waiting.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}Review {{ kind|lower }}{% endblock %}
+{% block content %}
+<a class="small" href="{% url 'portal:admin_queue' %}">&larr; Approval queue</a>
+<div class="row g-3 mt-1">
+  <div class="col-md-7">
+    <div class="card"><div class="card-body p-4">
+      <div class="text-muted small text-uppercase">{{ kind }}</div>
+      {% if is_job %}
+        <h4 class="mb-0">{{ obj.title }}</h4>
+        <div class="text-muted mb-3">{{ obj.company.name }} &middot; {{ obj.get_job_type_display }}{% if obj.location %} &middot; {{ obj.location }}{% endif %}</div>
+        <dl class="row small">
+          <dt class="col-4">Minimum CGPA</dt><dd class="col-8">{{ obj.min_cgpa }}</dd>
+          <dt class="col-4">Departments</dt><dd class="col-8">{{ obj.allowed_branches_display }}</dd>
+          <dt class="col-4">Compensation</dt><dd class="col-8">{{ obj.compensation|default:"—" }}</dd>
+          <dt class="col-4">Deadline</dt><dd class="col-8">{{ obj.deadline|date:"d M Y"|default:"—" }}</dd>
+          <dt class="col-4">Company status</dt><dd class="col-8"><span class="badge bg-{{ obj.company.status|badge }}">{{ obj.company.get_status_display }}</span></dd>
+        </dl>
+        <p style="white-space: pre-line">{{ obj.description }}</p>
+      {% else %}
+        <h4 class="mb-0">{{ obj.name }}</h4>
+        <div class="text-muted mb-3">{{ obj.industry }}{% if obj.location %} &middot; {{ obj.location }}{% endif %}</div>
+        <dl class="row small">
+          <dt class="col-4">Website</dt><dd class="col-8">{% if obj.website %}<a href="{{ obj.website }}" target="_blank" rel="noopener">{{ obj.website }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-4">Recruiter</dt><dd class="col-8">{{ obj.owner.display_name }} ({{ obj.owner.email }})</dd>
+        </dl>
+        <p style="white-space: pre-line">{{ obj.description }}</p>
+      {% endif %}
+      <p class="mb-0">Current status: <span class="badge bg-{{ obj.status|badge }}">{{ obj.get_status_display }}</span></p>
+    </div></div>
+  </div>
+  <div class="col-md-5">
+    <div class="card"><div class="card-body">
+      <h6>Decision</h6>
+      <form method="post">
+        {% csrf_token %}
+        {% include "portal/_form.html" with form=form %}
+        <div class="d-flex gap-2">
+          <button class="btn btn-success flex-fill" name="action" value="approve" type="submit">Approve</button>
+          <button class="btn btn-danger flex-fill" name="action" value="reject" type="submit">Reject</button>
+        </div>
+        <p class="small text-muted mt-2 mb-0">Your user ID, the decision and the time are written to the audit log.</p>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

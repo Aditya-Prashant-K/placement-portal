@@ -1,0 +1,23 @@
+{% extends "portal/base.html" %}
+{% block content %}
+<div class="hero p-5 mb-4">
+  <h1 class="display-6 fw-bold">Campus Placement &amp; Internship Portal</h1>
+  <p class="lead mb-4">One place for students, recruiters and the placement cell to run campus hiring.</p>
+  <a class="btn btn-light btn-lg me-2" href="{% url 'portal:login' %}">Log in</a>
+  <a class="btn btn-outline-light btn-lg" href="{% url 'portal:register' %}">Create an account</a>
+</div>
+<div class="row g-3">
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h5>Students</h5>
+    <p class="text-muted mb-0">Keep a profile, browse approved openings, see whether you're eligible before you apply, and track every application.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h5>Recruiters</h5>
+    <p class="text-muted mb-0">Register your company, publish postings with CGPA and branch criteria, review candidates and move them through the pipeline.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h5>Placement cell</h5>
+    <p class="text-muted mb-0">Approve or reject companies and postings before students see them. Every decision is recorded in an audit log.</p>
+  </div></div></div>
+</div>
+{% endblock %}

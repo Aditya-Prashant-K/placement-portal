@@ -1,0 +1,9 @@
+{% extends "portal/base.html" %}
+{% block title %}Not allowed{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="display-5">403</h1>
+  <p class="lead">This page belongs to a different role's portal.</p>
+  <a class="btn btn-primary" href="{% url 'portal:dashboard' %}">Go to my dashboard</a>
+</div>
+{% endblock %}

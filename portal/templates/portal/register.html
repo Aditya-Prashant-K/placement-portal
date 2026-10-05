@@ -1,0 +1,17 @@
+{% extends "portal/base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card"><div class="card-body p-4">
+      <h4 class="mb-1">Create an account</h4>
+      <p class="text-muted small">Placement-cell admin accounts are created by the institution, not here.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% include "portal/_form.html" with form=form %}
+        <button class="btn btn-primary w-100" type="submit">Register</button>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

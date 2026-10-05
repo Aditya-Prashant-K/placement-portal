@@ -1,0 +1,63 @@
+{% extends "portal/base.html" %}
+{% block title %}Browse jobs{% endblock %}
+{% block content %}
+<h3 class="mb-3">Open positions</h3>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-5"><input class="form-control" name="q" value="{{ q }}" placeholder="Search title, company or location"></div>
+  <div class="col-md-3">
+    <select class="form-select" name="type">
+      <option value="">All types</option>
+      {% for value, label in job_types %}
+        <option value="{{ value }}" {% if value == job_type %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2 d-flex align-items-center">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="eligible" value="1" id="eligible" {% if only_eligible %}checked{% endif %}>
+      <label class="form-check-label" for="eligible">Only eligible</label>
+    </div>
+  </div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Filter</button></div>
+</form>
+
+{% if not profile %}
+  <div class="alert alert-warning">Complete your <a href="{% url 'portal:profile_edit' %}">profile</a> to see which jobs you're eligible for.</div>
+{% endif %}
+
+<div class="row g-3">
+  {% for row in rows %}
+    {% with job=row.job %}
+    <div class="col-md-6">
+      <div class="card h-100"><div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="mb-0"><a class="text-decoration-none" href="{% url 'portal:job_detail' job.pk %}">{{ job.title }}</a></h5>
+            <div class="text-muted">{{ job.company.name }}{% if job.location %} &middot; {{ job.location }}{% endif %}</div>
+          </div>
+          <span class="badge bg-light text-dark border align-self-start">{{ job.get_job_type_display }}</span>
+        </div>
+        <div class="small mt-2">
+          Min CGPA <strong>{{ job.min_cgpa }}</strong> &middot; {{ job.allowed_branches_display }}
+          {% if job.compensation %} &middot; {{ job.compensation }}{% endif %}
+          {% if job.deadline %}<br>Apply by {{ job.deadline|date:"d M Y" }}{% endif %}
+        </div>
+        <div class="mt-auto pt-3">
+          {% if row.applied %}
+            <span class="badge bg-primary">Applied</span>
+          {% elif row.reasons %}
+            <span class="badge bg-danger-subtle text-danger-emphasis" title="{{ row.reasons|join:' ' }}">Not eligible</span>
+          {% else %}
+            <span class="badge bg-success">Eligible</span>
+          {% endif %}
+          <a class="btn btn-sm btn-outline-primary float-end" href="{% url 'portal:job_detail' job.pk %}">View</a>
+        </div>
+      </div></div>
+    </div>
+    {% endwith %}
+  {% empty %}
+    <p class="text-muted">No postings match.</p>
+  {% endfor %}
+</div>
+{% endblock %}

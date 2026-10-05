@@ -1,0 +1,21 @@
+{% extends "portal/base.html" %}
+{% block title %}{% if job %}Edit posting{% else %}New posting{% endif %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card"><div class="card-body p-4">
+      <h4 class="mb-1">{% if job %}Edit posting{% else %}New job posting{% endif %}</h4>
+      <p class="text-muted small">
+        Eligibility criteria are enforced on the server: students below the minimum CGPA or outside the allowed departments cannot apply.
+        {% if job and job.status != "PENDING" %}<br><strong>Saving changes sends this posting back for approval.</strong>{% endif %}
+      </p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% include "portal/_form.html" with form=form %}
+        <button class="btn btn-primary" type="submit">{% if job %}Save{% else %}Submit for approval{% endif %}</button>
+        <a class="btn btn-link" href="{% url 'portal:recruiter_dashboard' %}">Cancel</a>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

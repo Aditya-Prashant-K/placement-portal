@@ -1,0 +1,55 @@
+{% extends "portal/base.html" %}
+{% load portal_extras %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block content %}
+<a class="small" href="{% url 'portal:job_list' %}">&larr; All jobs</a>
+<div class="row g-3 mt-1">
+  <div class="col-md-8">
+    <div class="card"><div class="card-body p-4">
+      <h3 class="mb-0">{{ job.title }}</h3>
+      <div class="text-muted mb-3">{{ job.company.name }}{% if job.location %} &middot; {{ job.location }}{% endif %} &middot; {{ job.get_job_type_display }}</div>
+      <p style="white-space: pre-line">{{ job.description }}</p>
+      {% if job.company.description %}
+        <h6 class="mt-4">About {{ job.company.name }}</h6>
+        <p class="text-muted" style="white-space: pre-line">{{ job.company.description }}</p>
+      {% endif %}
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card mb-3"><div class="card-body">
+      <h6>Eligibility criteria</h6>
+      <ul class="small mb-0">
+        <li>Minimum CGPA: <strong>{{ job.min_cgpa }}</strong></li>
+        <li>Departments: <strong>{{ job.allowed_branches_display }}</strong></li>
+        {% if job.deadline %}<li>Deadline: <strong>{{ job.deadline|date:"d M Y" }}</strong></li>{% endif %}
+        {% if job.compensation %}<li>Compensation: <strong>{{ job.compensation }}</strong></li>{% endif %}
+      </ul>
+    </div></div>
+
+    {% if application %}
+      <div class="card"><div class="card-body">
+        <p class="mb-2">You applied on {{ application.applied_at|date:"d M Y" }}.</p>
+        <span class="badge bg-{{ application.status|badge }}">{{ application.get_status_display }}</span>
+        <a class="btn btn-sm btn-outline-primary float-end" href="{% url 'portal:application_detail' application.pk %}">Track</a>
+      </div></div>
+    {% elif reasons %}
+      <div class="card eligibility-notice"><div class="card-body">
+        <h6 class="text-danger">{% if blocked %}Application blocked{% else %}You're not eligible for this posting{% endif %}</h6>
+        <ul class="small mb-2">{% for r in reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+        {% if blocked %}<p class="small text-muted mb-0">This check runs on the server, so the application was not submitted.</p>{% endif %}
+      </div></div>
+      {# The button stays visible on purpose: submitting proves the server-side gate blocks it. #}
+      <form method="post" action="{% url 'portal:job_apply' job.pk %}" class="mt-2">
+        {% csrf_token %}
+        <button class="btn btn-outline-secondary w-100" type="submit">Try to apply anyway</button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'portal:job_apply' job.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-success w-100 btn-lg" type="submit">Apply now</button>
+      </form>
+      <p class="small text-muted mt-2">Your profile meets every criterion.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Campus Placement Portal{% endblock %}</title>
+  <link href="{% static 'portal/vendor/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'portal/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-brand">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'portal:home' %}">Campus Placement Portal</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        {% if user.is_authenticated %}
+          {% if user.is_student %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:student_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:job_list' %}">Browse jobs</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:application_list' %}">My applications</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:profile_edit' %}">My profile</a></li>
+          {% elif user.is_recruiter %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:recruiter_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:company_edit' %}">Company</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:job_create' %}">Post a job</a></li>
+          {% elif user.is_placement_admin %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:admin_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:admin_queue' %}">Approval queue</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'portal:audit_log' %}">Audit log</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav align-items-lg-center">
+        {% if user.is_authenticated %}
+          <li class="nav-item text-white-50 me-3 small">
+            {{ user.display_name }} &middot; {{ user.get_role_display }}
+          </li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'portal:logout' %}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-light" type="submit">Log out</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'portal:login' %}">Log in</a></li>
+          <li class="nav-item"><a class="btn btn-sm btn-light" href="{% url 'portal:register' %}">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="text-center text-muted py-3">
+  Campus Placement &amp; Internship Portal &middot; demo project
+</footer>
+
+<script src="{% static 'portal/vendor/bootstrap.bundle.min.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
